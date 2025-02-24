@@ -1,4 +1,4 @@
-MODULE_TOPDIR = ~/development/GRASS/grass-latest-src
+MODULE_TOPDIR = ../../../../grass-latest-src
 # MODULE_TOPDIR = ../..
 
 PGM = r.stone2
