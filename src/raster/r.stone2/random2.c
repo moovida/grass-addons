@@ -14,13 +14,11 @@
  *
  */
 
-static char rcsId[] = "$Id: random.c,v 1.1 2004/11/26 18:10:55 cstark Exp $";
-#define VERSION 1.1
-
+#include <float.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <float.h>
+
 #include "random2.h"
 
 #define TRUE  -1

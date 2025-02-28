@@ -27,13 +27,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <grass/config.h>
 #include <grass/gis.h>
-#include <grass/raster.h>
 #include <grass/glocale.h>
+#include <grass/raster.h>
 
-#include "future_parameters.h"
 #include "fixed_parameters.h"
+#include "future_parameters.h"
 #include "stone2.h"
 
 /*

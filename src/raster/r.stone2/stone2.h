@@ -1,30 +1,19 @@
 #ifndef _stone2_h_
 #define _stone2_h_
 
-/*
-        File di inclusione
-*/
-#include <stdlib.h>
-#include <time.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <string.h>
 #include <math.h>
-#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "mmath.h"
 #include "random2.h"
 
-/*
-        Definizioni
-*/
 #define FAULT          99999999
 #define PFAULT         99
 #define STOP_CELL      -1
 #define MAX_LEN_STRING 256
 
-/*
-        Definizioni Constanti
-*/
 #define G              9.805
 #define INV_G          0.101988781
 #define SQ2            1.414213562

@@ -1,10 +1,10 @@
 #include <grass/config.h>
 #include <grass/gis.h>
-#include <grass/raster.h>
 #include <grass/glocale.h>
+#include <grass/raster.h>
 
-#include "stone2.h"
 #include "random2.h"
+#include "stone2.h"
 #include "utils.h"
 
 static void GetMemory(typeParams *rParams, runtimeParams *rtParams,
