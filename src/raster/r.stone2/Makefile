@@ -1,5 +1,5 @@
-MODULE_TOPDIR = ../../../../grass-latest-src
-# MODULE_TOPDIR = ../..
+# MODULE_TOPDIR = ../../../../grass-latest-src
+MODULE_TOPDIR = ../..
 
 PGM = r.stone2
 
