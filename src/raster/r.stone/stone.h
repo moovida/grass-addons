@@ -1,5 +1,5 @@
-#ifndef _stone2_h_
-#define _stone2_h_
+#ifndef _stone_h_
+#define _stone_h_
 
 #include <math.h>
 #include <stdio.h>

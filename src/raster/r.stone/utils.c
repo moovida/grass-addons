@@ -2,7 +2,7 @@
 #include <grass/gis.h>
 
 #include "random2.h"
-#include "stone2.h"
+#include "stone.h"
 
 long QUOTA(runtimeParams *params, long piv)
 {

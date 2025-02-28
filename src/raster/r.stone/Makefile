@@ -1,7 +1,7 @@
 # MODULE_TOPDIR = ../../../../grass-latest-src
 MODULE_TOPDIR = ../..
 
-PGM = r.stone2
+PGM = r.stone
 
 # WHILE IN DEBUG MODE, TO BE REMOVED
 EXTRA_CFLAGS = -g -O0

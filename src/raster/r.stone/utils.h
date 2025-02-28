@@ -1,5 +1,5 @@
 #include "random2.h"
-#include "stone2.h"
+#include "stone.h"
 
 void print_typeGeometry(typeGeometry *geometry);
 void print_typeParams(typeParams *params);

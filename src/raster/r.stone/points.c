@@ -1,6 +1,6 @@
 #include <grass/gis.h>
 
-#include "stone2.h"
+#include "stone.h"
 #include "utils.h"
 
 /*

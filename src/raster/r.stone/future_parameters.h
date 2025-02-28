@@ -33,7 +33,7 @@ extern double FROM_ACC_TO_VEL;
 // OUT_ATTRIBUTES_2D_FILE, 2D attributes point file (e.g., attributes-2d);
 // contain id, quota, velocita',
 //              delta dal terreno, energia (1/2*m*v*v), traiettoria, parabola
-// FILE_INPUT_STAT Used to decide if Stone2 outputs binary file needed by
+// FILE_INPUT_STAT Used to decide if Stone outputs binary file needed by
 // STONESTAT
 extern char OUT_STONES_FILE[];
 extern char OUT_DTM_FILE[];

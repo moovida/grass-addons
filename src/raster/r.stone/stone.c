@@ -4,7 +4,7 @@
 #include <grass/raster.h>
 
 #include "random2.h"
-#include "stone2.h"
+#include "stone.h"
 #include "utils.h"
 
 static void GetMemory(typeParams *rParams, runtimeParams *rtParams,

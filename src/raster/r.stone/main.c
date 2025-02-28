@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * MODULE:       r.stone2
+ * MODULE:       r.stone
  * AUTHORS:      Fausto Guzzetti and Massimiliano Alvioli
  *               port to GRASS by Andrea Antonello
  * PURPOSE:      This program tries to model tri-dimensional paths
@@ -35,7 +35,7 @@
 
 #include "fixed_parameters.h"
 #include "future_parameters.h"
-#include "stone2.h"
+#include "stone.h"
 
 /*
  * main function
@@ -64,9 +64,9 @@ int main(int argc, char *argv[])
 
     module = G_define_module();
     G_add_keyword(_("raster"));
-    G_add_keyword(_("stone2"));
+    G_add_keyword(_("stone"));
     G_add_keyword(_("rockfall"));
-    module->description = _("The STONE2 rockfall module");
+    module->description = _("The STONE rockfall module");
 
     inputRaster.demOpt = G_define_standard_option(G_OPT_R_INPUT);
     inputRaster.demOpt->key = "dem_raster";
