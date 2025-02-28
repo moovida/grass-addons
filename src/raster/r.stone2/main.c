@@ -11,7 +11,7 @@
  *               Paths are evaluated using parametric 2nd order equations after
  *               a roto-translation of the coordinate system to the run-time
  *               triangle.
- *               
+ *
  *               A very small matrix package is used to perform
  *               3D geomtery operations.
  *
@@ -36,8 +36,6 @@
 #include "fixed_parameters.h"
 #include "stone2.h"
 
-// #define PACKAGE "grassmods" // TODO remove this later
-
 /*
  * main function
  */
@@ -52,19 +50,16 @@ int main(int argc, char *argv[])
     } outputRaster;
 
     struct {
-        struct Option *angStochRangeOpt, *vrestStochRangeOpt, *hrestStochRangeOpt, *frictStochRangeOpt;
+        struct Option *angStochRangeOpt, *vrestStochRangeOpt,
+            *hrestStochRangeOpt, *frictStochRangeOpt;
         struct Option *stopvelOpt;
     } params;
 
-
-    struct GModule *module; /* GRASS module for parsing arguments */
+    struct GModule *module;
     struct History history;
-    
 
-    /* initialize GIS environment */
-    G_gisinit(argv[0]); /* reads grass env, stores program name to G_program_name() */
+    G_gisinit(argv[0]);
 
-    /* initialize module */
     module = G_define_module();
     G_add_keyword(_("raster"));
     G_add_keyword(_("stone2"));
@@ -81,46 +76,56 @@ int main(int argc, char *argv[])
     inputRaster.sourcesOpt = G_define_standard_option(G_OPT_R_INPUT);
     inputRaster.sourcesOpt->key = "sources_raster";
     inputRaster.sourcesOpt->label = _("Start/stop raster map");
-    inputRaster.sourcesOpt->description = _("The input start/stop integer raster file."
-                                           "Shows the source areas of rock fall (value > 0)."
-                                           "Shows the areas where rock falls must stop, e.g. a lake (value = -1).");
+    inputRaster.sourcesOpt->description =
+        _("The input start/stop integer raster file."
+          "Shows the source areas of rock fall (value > 0)."
+          "Shows the areas where rock falls must stop, e.g. a lake (value = "
+          "-1).");
     inputRaster.sourcesOpt->required = YES;
     inputRaster.sourcesOpt->guisection = _("Input maps");
 
     inputRaster.nrestOpt = G_define_standard_option(G_OPT_R_INPUT);
     inputRaster.nrestOpt->key = "nrest_raster";
     inputRaster.nrestOpt->label = _("Normal Elasticity raster map");
-    inputRaster.nrestOpt->description = _("Contains values of normal (vertical) restitution coefficient, used at impact points."
-                                        "Accepted values are from 0 (total energy dumping) to 100 (elastic restitution)"
-                                        "Values are in integer percentage.");
+    inputRaster.nrestOpt->description =
+        _("Contains values of normal (vertical) restitution coefficient, used "
+          "at impact points."
+          "Accepted values are from 0 (total energy dumping) to 100 (elastic "
+          "restitution)"
+          "Values are in integer percentage.");
     inputRaster.nrestOpt->required = YES;
     inputRaster.nrestOpt->guisection = _("Input maps");
 
     inputRaster.trestOpt = G_define_standard_option(G_OPT_R_INPUT);
     inputRaster.trestOpt->key = "trest_raster";
     inputRaster.trestOpt->label = _("Tangential Elasticity raster map");
-    inputRaster.trestOpt->description = _("Contains values of tangential (horizontal) restitution coefficient, used at impact points."
-                                        "Accepted values are from 0 (total energy dumping) to 100 (elastic restitution)"
-                                        "Values are in integer percentage.");
+    inputRaster.trestOpt->description =
+        _("Contains values of tangential (horizontal) restitution coefficient, "
+          "used at impact points."
+          "Accepted values are from 0 (total energy dumping) to 100 (elastic "
+          "restitution)"
+          "Values are in integer percentage.");
     inputRaster.trestOpt->required = YES;
     inputRaster.trestOpt->guisection = _("Input maps");
 
     inputRaster.frictionOpt = G_define_standard_option(G_OPT_R_INPUT);
     inputRaster.frictionOpt->key = "friction_raster";
     inputRaster.frictionOpt->label = _("Friction raster map");
-    inputRaster.frictionOpt->description = _("Contains values of rolling friction angle (tan(beta)), used where rolling."
-                                        "Example Friction for alluvial deposit is high, beta = 40.4, tan(beta) = 0.85."
-                                        "Example Friction for bedrock is low, beta = 16.7, tan(beta) = 0.30"
-                                        );
+    inputRaster.frictionOpt->description =
+        _("Contains values of rolling friction angle (tan(beta)), used where "
+          "rolling."
+          "Example Friction for alluvial deposit is high, beta = 40.4, "
+          "tan(beta) = 0.85."
+          "Example Friction for bedrock is low, beta = 16.7, tan(beta) = 0.30");
     inputRaster.frictionOpt->required = YES;
     inputRaster.frictionOpt->guisection = _("Input maps");
-
 
     params.angStochRangeOpt = G_define_option();
     params.angStochRangeOpt->key = "ang_stoch_range";
     params.angStochRangeOpt->type = TYPE_INTEGER;
     params.angStochRangeOpt->required = YES;
-    params.angStochRangeOpt->description = _("Percent variability of detachment angle");
+    params.angStochRangeOpt->description =
+        _("Percent variability of detachment angle");
     params.angStochRangeOpt->guisection = _("Stochastic functions");
     params.angStochRangeOpt->answer = "10";
 
@@ -128,7 +133,8 @@ int main(int argc, char *argv[])
     params.vrestStochRangeOpt->key = "vrest_stoch_range";
     params.vrestStochRangeOpt->type = TYPE_INTEGER;
     params.vrestStochRangeOpt->required = YES;
-    params.vrestStochRangeOpt->description = _("Percent variability of normal restitution");
+    params.vrestStochRangeOpt->description =
+        _("Percent variability of normal restitution");
     params.vrestStochRangeOpt->guisection = _("Stochastic functions");
     params.vrestStochRangeOpt->answer = "10";
 
@@ -136,7 +142,8 @@ int main(int argc, char *argv[])
     params.hrestStochRangeOpt->key = "hrest_stoch_range";
     params.hrestStochRangeOpt->type = TYPE_INTEGER;
     params.hrestStochRangeOpt->required = YES;
-    params.hrestStochRangeOpt->description = _("Percent variability of tangential restitution");
+    params.hrestStochRangeOpt->description =
+        _("Percent variability of tangential restitution");
     params.hrestStochRangeOpt->guisection = _("Stochastic functions");
     params.hrestStochRangeOpt->answer = "10";
 
@@ -144,7 +151,8 @@ int main(int argc, char *argv[])
     params.frictStochRangeOpt->key = "frict_stoch_range";
     params.frictStochRangeOpt->type = TYPE_INTEGER;
     params.frictStochRangeOpt->required = YES;
-    params.frictStochRangeOpt->description = _("Percent variability of the friction coefficient");
+    params.frictStochRangeOpt->description =
+        _("Percent variability of the friction coefficient");
     params.frictStochRangeOpt->guisection = _("Stochastic functions");
     params.frictStochRangeOpt->answer = "10";
 
@@ -153,55 +161,60 @@ int main(int argc, char *argv[])
     params.stopvelOpt->type = TYPE_DOUBLE;
     params.stopvelOpt->required = YES;
     params.stopvelOpt->label = _("Stop velocity");
-    params.stopvelOpt->description = _("Parameter used to define the minimum velocity for a rock fall."
-                                      "A velocity lower than the one specified here causes the boulder to stop.");
+    params.stopvelOpt->description =
+        _("Parameter used to define the minimum velocity for a rock fall."
+          "A velocity lower than the one specified here causes the boulder to "
+          "stop.");
     params.stopvelOpt->guisection = _("Parameters");
     params.stopvelOpt->answer = "3.0";
 
     outputRaster.countersOpt = G_define_standard_option(G_OPT_R_OUTPUT);
     outputRaster.countersOpt->key = "counters_raster";
-    outputRaster.countersOpt->description = _("The resulting counters raster output map");
+    outputRaster.countersOpt->description =
+        _("The resulting counters raster output map");
     outputRaster.countersOpt->required = YES;
     outputRaster.countersOpt->guisection = _("Output maps");
-    
+
     outputRaster.maxvelOpt = G_define_standard_option(G_OPT_R_OUTPUT);
     outputRaster.maxvelOpt->key = "maxvel_raster";
-    outputRaster.maxvelOpt->description = _("The optional maxvel raster output map");
+    outputRaster.maxvelOpt->description =
+        _("The optional maxvel raster output map");
     outputRaster.maxvelOpt->required = NO;
     outputRaster.maxvelOpt->guisection = _("Output maps");
-    
+
     outputRaster.maxdzOpt = G_define_standard_option(G_OPT_R_OUTPUT);
     outputRaster.maxdzOpt->key = "maxdz_raster";
-    outputRaster.maxdzOpt->description = _("The optional maxdz raster output map");
+    outputRaster.maxdzOpt->description =
+        _("The optional maxdz raster output map");
     outputRaster.maxdzOpt->required = NO;
     outputRaster.maxdzOpt->guisection = _("Output maps");
 
-
-    /* options and flags parser */
     if (G_parser(argc, argv))
         exit(EXIT_FAILURE);
 
-
-    
     /***********************/
     /*    check options   */
     /***********************/
 
-    /* input maps exist ? */
+    /* mandatory input maps exist ? */
     if (!G_find_raster2(inputRaster.demOpt->answer, ""))
-        G_fatal_error(_("Raster map <%s> not found"), inputRaster.demOpt->answer);
+        G_fatal_error(_("Raster map <%s> not found"),
+                      inputRaster.demOpt->answer);
     if (!G_find_raster2(inputRaster.sourcesOpt->answer, ""))
-        G_fatal_error(_("Raster map <%s> not found"), inputRaster.sourcesOpt->answer);
+        G_fatal_error(_("Raster map <%s> not found"),
+                      inputRaster.sourcesOpt->answer);
     if (!G_find_raster2(inputRaster.frictionOpt->answer, ""))
-        G_fatal_error(_("Raster map <%s> not found"), inputRaster.frictionOpt->answer);
+        G_fatal_error(_("Raster map <%s> not found"),
+                      inputRaster.frictionOpt->answer);
     if (!G_find_raster2(inputRaster.nrestOpt->answer, ""))
-        G_fatal_error(_("Raster map <%s> not found"), inputRaster.nrestOpt->answer);
+        G_fatal_error(_("Raster map <%s> not found"),
+                      inputRaster.nrestOpt->answer);
     if (!G_find_raster2(inputRaster.trestOpt->answer, ""))
-        G_fatal_error(_("Raster map <%s> not found"), inputRaster.trestOpt->answer);
-
+        G_fatal_error(_("Raster map <%s> not found"),
+                      inputRaster.trestOpt->answer);
 
     /************************ */
-    /*    convert options     */
+    /*    parameters          */
     /************************ */
 
     int ang_stoch_range = atoi(params.angStochRangeOpt->answer);
@@ -211,17 +224,25 @@ int main(int argc, char *argv[])
     double stop_vel = atof(params.stopvelOpt->answer);
 
     typeParams stoneRunParams = {0};
-    strncpy(stoneRunParams.elev_f, inputRaster.demOpt->answer, MAX_LEN_STRING - 1);
-    strncpy(stoneRunParams.stst_f, inputRaster.sourcesOpt->answer, MAX_LEN_STRING - 1);
-    strncpy(stoneRunParams.v_elas_f, inputRaster.nrestOpt->answer, MAX_LEN_STRING - 1);
-    strncpy(stoneRunParams.h_elas_f, inputRaster.trestOpt->answer, MAX_LEN_STRING - 1);
-    strncpy(stoneRunParams.frict_f, inputRaster.frictionOpt->answer, MAX_LEN_STRING - 1);
-    strncpy(stoneRunParams.OUT_COUNTERS_FILE, outputRaster.countersOpt->answer, MAX_LEN_STRING - 1);
+    strncpy(stoneRunParams.elev_f, inputRaster.demOpt->answer,
+            MAX_LEN_STRING - 1);
+    strncpy(stoneRunParams.stst_f, inputRaster.sourcesOpt->answer,
+            MAX_LEN_STRING - 1);
+    strncpy(stoneRunParams.v_elas_f, inputRaster.nrestOpt->answer,
+            MAX_LEN_STRING - 1);
+    strncpy(stoneRunParams.h_elas_f, inputRaster.trestOpt->answer,
+            MAX_LEN_STRING - 1);
+    strncpy(stoneRunParams.frict_f, inputRaster.frictionOpt->answer,
+            MAX_LEN_STRING - 1);
+    strncpy(stoneRunParams.OUT_COUNTERS_FILE, outputRaster.countersOpt->answer,
+            MAX_LEN_STRING - 1);
     if (outputRaster.maxvelOpt->answer)
-        strncpy(stoneRunParams.OUT_MAX_VEL_FILE, outputRaster.maxvelOpt->answer, MAX_LEN_STRING - 1);
+        strncpy(stoneRunParams.OUT_MAX_VEL_FILE, outputRaster.maxvelOpt->answer,
+                MAX_LEN_STRING - 1);
     if (outputRaster.maxdzOpt->answer)
-        strncpy(stoneRunParams.OUT_MAX_DZ_FILE, outputRaster.maxdzOpt->answer, MAX_LEN_STRING - 1);
-    
+        strncpy(stoneRunParams.OUT_MAX_DZ_FILE, outputRaster.maxdzOpt->answer,
+                MAX_LEN_STRING - 1);
+
     stoneRunParams.stoc_angle = ang_stoch_range;
     stoneRunParams.stoc_vel = vrest_stoch_range;
     stoneRunParams.stoc_hel = hrest_stoch_range;
@@ -229,44 +250,43 @@ int main(int argc, char *argv[])
     stoneRunParams.min_v = stop_vel;
     stoneRunParams.min_v2 = stoneRunParams.min_v * stoneRunParams.min_v;
 
-    stoneRunParams.max_path = PATH_ARRAY_SIZE; //! TODO check this to avoid segmentation fault
+    stoneRunParams.max_path = PATH_ARRAY_SIZE;
 
     /*
      * Fixed parameters that might be elevated to user input at some point.
      */
-    stoneRunParams.short_bounce2 = DIST_FLY_ROLL*DIST_FLY_ROLL;
-    stoneRunParams.fly_roll_thresh2 = VEL_FLY_ROLL*VEL_FLY_ROLL;
+    stoneRunParams.short_bounce2 = DIST_FLY_ROLL * DIST_FLY_ROLL;
+    stoneRunParams.fly_roll_thresh2 = VEL_FLY_ROLL * VEL_FLY_ROLL;
     stoneRunParams.fly_step = FLY_INT_TAB;
     stoneRunParams.roll_step = ROLL_INT_TAB;
     stoneRunParams.tab = OUTPUT_TAB;
     stoneRunParams.gdQuotaUMFactor = OUTPUT_QUOTA_UM_FACTOR;
     stoneRunParams.gdVeloUMFactor = OUTPUT_VELO_UM_FACTOR;
     stoneRunParams.gdTab2 = stoneRunParams.tab * stoneRunParams.tab;
-    
+
     stoneRunParams.SwitchVelType = SWITCH_VEL_TYPE;
     stoneRunParams.v0 = START_VEL_DEFAULT;
 
     stoneRunParams.stoc_flag = STOCH_FLAG;
     stoneRunParams.mANG_STOCH_FUNC = ANG_STOCH_FUNC;
     stoneRunParams.mVREST_STOCH_FUNC = VREST_STOCH_FUNC;
-    
+
     // flags to disable future parameters stuff unused at the moment
     stoneRunParams.gen_3d_vect = VECT_3D_FILES_FLAG;
-    stoneRunParams.gFlagInfoStat = 0.; //FLAG_CREATE_INPUT_STAT;
+    stoneRunParams.gFlagInfoStat = 0.; // FLAG_CREATE_INPUT_STAT;
     stoneRunParams.giRockType = BOULDER_SHAPE;
     stoneRunParams.randomGenerator = RANDOM_GENERATOR;
-
 
     globalParams stoneGlobalParams = {0};
     stoneGlobalParams.gGeometry = malloc(sizeof(typeGeometry));
     stoneGlobalParams.gdInvMaxRandPlusOne = 1. / (RAND_MAX + 1.);
 
     runStone(&stoneRunParams, &stoneGlobalParams);
-    
+
     // /* add command line incantation to history file */
     // Rast_short_history(result, "raster", &history);
     // Rast_command_history(&history);
     // Rast_write_history(result, &history);
-    
+
     exit(EXIT_SUCCESS);
 }

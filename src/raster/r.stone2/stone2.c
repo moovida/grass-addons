@@ -7,14 +7,21 @@
 #include "random2.h"
 #include "utils.h"
 
-static void GetMemory(typeParams *rParams, runtimeParams* rtParams, globalParams *gParams);
-static void free_memory(typeParams *rParams, runtimeParams* rtParams, globalParams *gParams);
+static void GetMemory(typeParams *rParams, runtimeParams *rtParams,
+                      globalParams *gParams);
+static void free_memory(typeParams *rParams, runtimeParams *rtParams,
+                        globalParams *gParams);
 static void WriteInfoStatFile();
 static void DumpMatrixToRaster(char *fname, long *mat, int nodata);
-static void InitRangeRandValues(typeParams* runParams, runtimeParams* runTimeParams, UniSave* uniData);
-static void ReadInputRasters(typeParams* stoneRunParams,globalParams* stoneGlobalParams, runtimeParams* stoneRunTimeParams);
-static void ReadRasterToLongMatrix(char *rasterName, long **pmat, double factor,long nodata, int countRuns);
-static void ReadRasterToShortMatrix(char *fname, short **pmat, double factor, short nodata);
+static void InitRangeRandValues(typeParams *runParams,
+                                runtimeParams *runTimeParams, UniSave *uniData);
+static void ReadInputRasters(typeParams *stoneRunParams,
+                             globalParams *stoneGlobalParams,
+                             runtimeParams *stoneRunTimeParams);
+static void ReadRasterToLongMatrix(char *rasterName, long **pmat, double factor,
+                                   long nodata, int countRuns);
+static void ReadRasterToShortMatrix(char *fname, short **pmat, double factor,
+                                    short nodata);
 
 void runStone(typeParams *rParams, globalParams *gParams)
 {
@@ -34,20 +41,21 @@ void runStone(typeParams *rParams, globalParams *gParams)
 
     ReadInputRasters(rParams, gParams, &rtParams);
 
-    G_verbose_message(_("Allocate memory for the runtime parameters and processing matrixes."));
+    G_verbose_message(_(
+        "Allocate memory for the runtime parameters and processing matrixes."));
     GetMemory(rParams, &rtParams, gParams);
     G_verbose_message(_("Done."));
-
 
     switch (rParams->giRockType) {
     case 0: /* points */
         G_message(_("Processing trajectories using the point shape approach."));
-        TrackPoints( rParams, gParams, &rtParams, &uniData, ctx);
+        TrackPoints(rParams, gParams, &rtParams, &uniData, ctx);
         break;
     case 1: /* sphere */
     case 2: /* cylinder */
     case 3: /* disco */
-        G_fatal_error(_("At the moment only the point shaped approach (BOULDER_SHAPE=0) is supported. Aborting."));
+        G_fatal_error(_("At the moment only the point shaped approach "
+                        "(BOULDER_SHAPE=0) is supported. Aborting."));
         // TrackNoPoints();
         break;
     default:
@@ -55,7 +63,8 @@ void runStone(typeParams *rParams, globalParams *gParams)
     }
 
     DumpMatrixToRaster(rParams->OUT_COUNTERS_FILE, rtParams.gplCountStones, -1);
-    if (rParams->OUT_MAX_VEL_FILE != NULL && rParams->OUT_MAX_VEL_FILE[0] != '\0')
+    if (rParams->OUT_MAX_VEL_FILE != NULL &&
+        rParams->OUT_MAX_VEL_FILE[0] != '\0')
         DumpMatrixToRaster(rParams->OUT_MAX_VEL_FILE, rtParams.gplVelo, -1);
     if (rParams->OUT_MAX_DZ_FILE != NULL && rParams->OUT_MAX_DZ_FILE[0] != '\0')
         DumpMatrixToRaster(rParams->OUT_MAX_DZ_FILE, rtParams.gplMaxQuota, -1);
@@ -65,7 +74,8 @@ void runStone(typeParams *rParams, globalParams *gParams)
     return;
 }
 
-static void InitRangeRandValues(typeParams *runParams, runtimeParams *runTimeParams, UniSave *uniData)
+static void InitRangeRandValues(typeParams *runParams,
+                                runtimeParams *runTimeParams, UniSave *uniData)
 {
     if (!runParams->stoc_flag) {
         runTimeParams->gdStocAngleR = 0.;
@@ -90,12 +100,12 @@ static void InitRangeRandValues(typeParams *runParams, runtimeParams *runTimePar
         runTimeParams->gdStocFrict2R = runTimeParams->gdStocFrictR * 2.;
     }
 
-    
     Init_RNG(uniData, runParams->randomGenerator,
              (unsigned int)runParams->stoc_flag);
 }
 
-static void ReadInputRasters(typeParams *rParams, globalParams *gParams, runtimeParams *rtParams)
+static void ReadInputRasters(typeParams *rParams, globalParams *gParams,
+                             runtimeParams *rtParams)
 {
     struct Cell_head window, cellhd;
 
@@ -115,19 +125,23 @@ static void ReadInputRasters(typeParams *rParams, globalParams *gParams, runtime
     gParams->gGeometry->rows = window.rows;
     gParams->gGeometry->cell = window.ns_res;
     if (window.ns_res != window.ew_res)
-        G_warning(_("Resolution in north-south direction (%f) is different from east-west direction (%f). Using north-south resolution."),
-                  window.ns_res, window.ew_res);
+        G_warning(
+            _("Resolution in north-south direction (%f) is different from "
+              "east-west direction (%f). Using north-south resolution."),
+            window.ns_res, window.ew_res);
     gParams->gGeometry->sw_x = window.west;
     gParams->gGeometry->sw_y = window.south;
     gParams->gGeometry->ne_x = window.east;
     gParams->gGeometry->ne_y = window.north;
 
+    ReadRasterToLongMatrix(rParams->elev_f, &rtParams->gplQuota, 1000.,
+                           9999999L, 0);
 
-    ReadRasterToLongMatrix(rParams->elev_f, &rtParams->gplQuota, 1000., 9999999L, 0);
+    ReadRasterToLongMatrix(rParams->stst_f, &rtParams->gplStartStop, 1., -9999L,
+                           1);
 
-    ReadRasterToLongMatrix(rParams->stst_f, &rtParams->gplStartStop, 1., -9999L, 1);
-
-    ReadRasterToLongMatrix(rParams->frict_f, &rtParams->gplFrict, 1000., 999999L, 0);
+    ReadRasterToLongMatrix(rParams->frict_f, &rtParams->gplFrict, 1000.,
+                           999999L, 0);
 
     ReadRasterToShortMatrix(rParams->v_elas_f, &rtParams->gpcVElas, 1., 0);
 
@@ -135,12 +149,13 @@ static void ReadInputRasters(typeParams *rParams, globalParams *gParams, runtime
 
     if (rParams->SwitchVelType == 1)
         ReadRasterToLongMatrix(rParams->AccMtrxFile, &rtParams->gplStartVel,
-                       rParams->FromAccToVel * 1000, 0, 0);
+                               rParams->FromAccToVel * 1000, 0, 0);
 
     /*
       Set globals
     */
-   // remember that we need to add an external border of novalues, hence the + 2
+    // remember that we need to add an external border of novalues, hence the +
+    // 2
     gParams->giCols = gParams->gGeometry->cols + 2;
     gParams->giRows = gParams->gGeometry->rows + 2;
     gParams->glRowsxCols = gParams->giRows * gParams->giCols;
@@ -152,8 +167,8 @@ static void ReadInputRasters(typeParams *rParams, globalParams *gParams, runtime
     gParams->gdOffset = gParams->gdCell * 0.5;
 }
 
-static void ReadRasterToLongMatrix(char *rasterName, long **pmat, double factor, long nodata,
-                    int countRuns)
+static void ReadRasterToLongMatrix(char *rasterName, long **pmat, double factor,
+                                   long nodata, int countRuns)
 {
     int r, c;
     double data;
@@ -178,9 +193,9 @@ static void ReadRasterToLongMatrix(char *rasterName, long **pmat, double factor,
 
     int wRows = Rast_window_rows();
     int wCols = Rast_window_cols();
-    // WARNING: the author here decides to create a matrix with an external border of novalues,
-    // so the matrix is bigger than the raster and we need to read the raster with an offset of 1
-    // later in the loop
+    // WARNING: the author here decides to create a matrix with an external
+    // border of novalues, so the matrix is bigger than the raster and we need
+    // to read the raster with an offset of 1 later in the loop
     int irows = wRows + 2;
     int icols = wCols + 2;
 
@@ -206,7 +221,7 @@ static void ReadRasterToLongMatrix(char *rasterName, long **pmat, double factor,
             continue;
         }
 
-        Rast_get_row(inFileDescriptor, inrast, r-1, map_type);
+        Rast_get_row(inFileDescriptor, inrast, r - 1, map_type);
         for (c = 0; c < icols; ++c) {
             if (c == 0 || c == icols - 1) {
                 piv = r * icols + c;
@@ -216,13 +231,13 @@ static void ReadRasterToLongMatrix(char *rasterName, long **pmat, double factor,
             double value;
             switch (map_type) {
             case CELL_TYPE:
-                value = ((CELL *)inrast)[c-1];
+                value = ((CELL *)inrast)[c - 1];
                 break;
             case FCELL_TYPE:
-                value = ((FCELL *)inrast)[c-1];
+                value = ((FCELL *)inrast)[c - 1];
                 break;
             case DCELL_TYPE:
-                value = ((DCELL *)inrast)[c-1];
+                value = ((DCELL *)inrast)[c - 1];
                 break;
             }
 
@@ -244,7 +259,8 @@ static void ReadRasterToLongMatrix(char *rasterName, long **pmat, double factor,
     G_verbose_message(_("Done."));
 }
 
-static void ReadRasterToShortMatrix(char *rasterName, short **pmat, double factor, short nodata)
+static void ReadRasterToShortMatrix(char *rasterName, short **pmat,
+                                    double factor, short nodata)
 {
     int r, c;
     double data;
@@ -275,9 +291,9 @@ static void ReadRasterToShortMatrix(char *rasterName, short **pmat, double facto
     // int irows = cellhd.rows;
     // int icols = cellhd.cols;
 
-    // WARNING: the author here decides to create a matrix with an external border of novalues,
-    // so the matrix is bigger than the raster and we need to read the raster with an offset of 1
-    // later in the loop
+    // WARNING: the author here decides to create a matrix with an external
+    // border of novalues, so the matrix is bigger than the raster and we need
+    // to read the raster with an offset of 1 later in the loop
     int irows = wRows + 2;
     int icols = wCols + 2;
 
@@ -293,7 +309,7 @@ static void ReadRasterToShortMatrix(char *rasterName, short **pmat, double facto
     /*
       Read data
     */
-    for (r = 0; r < irows; ++r){
+    for (r = 0; r < irows; ++r) {
         G_percent(r, irows, 2);
         if (r == 0 || r == irows - 1) {
             for (c = 0; c < icols; ++c) {
@@ -303,7 +319,7 @@ static void ReadRasterToShortMatrix(char *rasterName, short **pmat, double facto
             continue;
         }
 
-        Rast_get_row(inFileDescriptor, inrast, r-1, map_type);
+        Rast_get_row(inFileDescriptor, inrast, r - 1, map_type);
         for (c = 0; c < icols; ++c) {
             if (c == 0 || c == icols - 1) {
                 piv = r * icols + c;
@@ -313,13 +329,13 @@ static void ReadRasterToShortMatrix(char *rasterName, short **pmat, double facto
             short value;
             switch (map_type) {
             case CELL_TYPE:
-                value = (short)((CELL *)inrast)[c-1];
+                value = (short)((CELL *)inrast)[c - 1];
                 break;
             case FCELL_TYPE:
-                value = (short)((FCELL *)inrast)[c-1];
+                value = (short)((FCELL *)inrast)[c - 1];
                 break;
             case DCELL_TYPE:
-                value = (short)((DCELL *)inrast)[c-1];
+                value = (short)((DCELL *)inrast)[c - 1];
                 break;
             }
 
@@ -334,20 +350,19 @@ static void ReadRasterToShortMatrix(char *rasterName, short **pmat, double facto
             }
         }
     }
-    
+
     G_free(inrast);
     Rast_close(inFileDescriptor);
 
     G_verbose_message(_("Done."));
 }
 
-
 static void DumpMatrixToRaster(char *rasterName, long *mat, int nodata)
 {
     int r, c, matrixRow, matrixCol;
     long piv;
     int out_type = CELL_TYPE;
-    
+
     G_verbose_message(_("Writing raster: %s"), rasterName);
 
     int wRows = Rast_window_rows();
@@ -359,14 +374,14 @@ static void DumpMatrixToRaster(char *rasterName, long *mat, int nodata)
     unsigned char *rowBuffer = Rast_allocate_buf(out_type);
     for (r = 0; r < wRows; r++) {
         G_percent(r, wRows, 2);
-        
+
         matrixRow = r + 1;
         Rast_set_null_value(rowBuffer, wCols, out_type);
         for (c = 0; c < wCols; c++) {
             matrixCol = c + 1;
             piv = matrixRow * matricCols + matrixCol;
             long value = *(mat + piv);
-            if (value != nodata){
+            if (value != nodata) {
                 ((CELL *)rowBuffer)[c] = value;
             }
         }
@@ -380,11 +395,12 @@ static void DumpMatrixToRaster(char *rasterName, long *mat, int nodata)
     G_verbose_message(_("Raster writing done"));
 }
 
-static void GetMemory(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams)
+static void GetMemory(typeParams *rParams, runtimeParams *rtParams,
+                      globalParams *gParams)
 {
     long mem, i;
     char msg[MAX_LEN_STRING];
-    
+
     strcpy(msg, "Not enough memory");
 
     long glRowsxCols = gParams->glRowsxCols;
@@ -398,27 +414,28 @@ static void GetMemory(typeParams* rParams, runtimeParams* rtParams, globalParams
     if (rParams->SwitchVelType == 1)
         mem += glRowsxCols * sizeof(long);
 
-    G_message("Estimate of memory used for the run: %ldMB", mem/1024/1024);
+    G_message("Estimate of memory used for the run: %ldMB", mem / 1024 / 1024);
 
     rtParams->gplCountStones = (long *)malloc(glRowsxCols * sizeof(long));
     if (rtParams->gplCountStones == NULL)
-        G_fatal_error("%s",msg);
+        G_fatal_error("%s", msg);
 
     rtParams->gplVelo = (long *)malloc(glRowsxCols * sizeof(long));
     if (rtParams->gplVelo == NULL)
-        G_fatal_error("%s",msg);
+        G_fatal_error("%s", msg);
 
     rtParams->gplMaxQuota = (long *)malloc(glRowsxCols * sizeof(long));
     if (rtParams->gplMaxQuota == NULL)
-        G_fatal_error("%s",msg);
+        G_fatal_error("%s", msg);
 
-    rtParams->gpPathRoot = (typePath *)malloc(sizeof(typePath) * rParams->max_path);
+    rtParams->gpPathRoot =
+        (typePath *)malloc(sizeof(typePath) * rParams->max_path);
     if (rtParams->gpPathRoot == NULL)
-        G_fatal_error("%s",msg);
+        G_fatal_error("%s", msg);
 
     rtParams->gP3dZero = (P3d *)malloc(sizeof(P3d));
     if (rtParams->gP3dZero == NULL)
-        G_fatal_error("%s",msg);
+        G_fatal_error("%s", msg);
 
     for (i = 0; i < glRowsxCols; ++i) {
         // VELO(i) = -1;
@@ -448,7 +465,8 @@ static void GetMemory(typeParams* rParams, runtimeParams* rtParams, globalParams
     rtParams->gP3dZero->Z = 0.;
 }
 
-static void free_memory(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams)
+static void free_memory(typeParams *rParams, runtimeParams *rtParams,
+                        globalParams *gParams)
 {
     // free(rtParams->gplCountStones);
     // free(rtParams->gplVelo);
@@ -471,9 +489,8 @@ static void free_memory(typeParams* rParams, runtimeParams* rtParams, globalPara
     // free(rParams);
 }
 
-
-
-int NewPlane(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams, P3d *cp, MathContext *ctx)
+int NewPlane(typeParams *rParams, runtimeParams *rtParams,
+             globalParams *gParams, P3d *cp, MathContext *ctx)
 {
     int r, c;
     long piv;
@@ -485,8 +502,7 @@ int NewPlane(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams
     double gdInvCell = gParams->gdInvCell;
     double gdCell = gParams->gdCell;
 
-    typePlane* gPlane = &(rtParams->gPlane);
-
+    typePlane *gPlane = &(rtParams->gPlane);
 
     c = (int)((cp->X - gdOffset) * gdInvCell);
     r = (int)((cp->Y - gdOffset) * gdInvCell);
@@ -507,7 +523,9 @@ int NewPlane(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams
 
     if (y1 <= ym) /* Type 1: origin SW */
     {
-        if (!pivIsValid(piv, gParams) || !pivIsValid(piv + rtParams->gsKernel9[2], gParams) || !pivIsValid(piv + rtParams->gsKernel9[0], gParams)) {
+        if (!pivIsValid(piv, gParams) ||
+            !pivIsValid(piv + rtParams->gsKernel9[2], gParams) ||
+            !pivIsValid(piv + rtParams->gsKernel9[0], gParams)) {
             G_debug(3, "%s", debug_msg);
             return 1;
         }
@@ -515,13 +533,13 @@ int NewPlane(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams
         gPlane->type = 1;
         gPlane->p0.X = x0;
         gPlane->p0.Y = y0;
-        gPlane->p0.Z = QUOTA(rtParams,piv) * 0.001;
+        gPlane->p0.Z = QUOTA(rtParams, piv) * 0.001;
         gPlane->p1.X = x0 + gdCell;
         gPlane->p1.Y = y0;
-        gPlane->p1.Z = QUOTA(rtParams,piv + rtParams->gsKernel9[2]) * 0.001;
+        gPlane->p1.Z = QUOTA(rtParams, piv + rtParams->gsKernel9[2]) * 0.001;
         gPlane->p2.X = x0;
         gPlane->p2.Y = y0 + gdCell;
-        gPlane->p2.Z = QUOTA(rtParams,piv + rtParams->gsKernel9[0]) * 0.001;
+        gPlane->p2.Z = QUOTA(rtParams, piv + rtParams->gsKernel9[0]) * 0.001;
 
         gPlane->Rz = 0.;
     }
@@ -530,19 +548,21 @@ int NewPlane(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams
         gPlane->type = 2;
 
         piv += rtParams->gsKernel9[1];
-        if (!pivIsValid(piv, gParams) || !pivIsValid(piv + rtParams->gsKernel9[6], gParams) || !pivIsValid(piv + rtParams->gsKernel9[4], gParams)) {
+        if (!pivIsValid(piv, gParams) ||
+            !pivIsValid(piv + rtParams->gsKernel9[6], gParams) ||
+            !pivIsValid(piv + rtParams->gsKernel9[4], gParams)) {
             G_debug(3, "%s", debug_msg);
             return 1;
         }
         gPlane->p0.X = x0 + gdCell;
         gPlane->p0.Y = y0 + gdCell;
-        gPlane->p0.Z = QUOTA(rtParams,piv) * 0.001;
+        gPlane->p0.Z = QUOTA(rtParams, piv) * 0.001;
         gPlane->p1.X = x0;
         gPlane->p1.Y = y0 + gdCell;
-        gPlane->p1.Z = QUOTA(rtParams,piv + rtParams->gsKernel9[6]) * 0.001;
+        gPlane->p1.Z = QUOTA(rtParams, piv + rtParams->gsKernel9[6]) * 0.001;
         gPlane->p2.X = x0 + gdCell;
         gPlane->p2.Y = y0;
-        gPlane->p2.Z = QUOTA(rtParams,piv + rtParams->gsKernel9[4]) * 0.001;
+        gPlane->p2.Z = QUOTA(rtParams, piv + rtParams->gsKernel9[4]) * 0.001;
 
         gPlane->Rz = PI;
     }
@@ -554,9 +574,12 @@ int NewPlane(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams
         // if (gParams.EnabledLogFile)
         //     fprintf(gFileLog, "NewPlane: Matrix boundary\n");
         G_debug(5, "NewPlane: Matrix boundary touched");
-        G_debug(5, "NewPlane1: p0: %lf %lf %lf", gPlane->p0.X, gPlane->p0.Y, gPlane->p0.Z);
-        G_debug(5, "           p1: %lf %lf %lf", gPlane->p1.X, gPlane->p1.Y, gPlane->p1.Z);
-        G_debug(5, "           p2: %lf %lf %lf", gPlane->p2.X, gPlane->p2.Y, gPlane->p2.Z);
+        G_debug(5, "NewPlane1: p0: %lf %lf %lf", gPlane->p0.X, gPlane->p0.Y,
+                gPlane->p0.Z);
+        G_debug(5, "           p1: %lf %lf %lf", gPlane->p1.X, gPlane->p1.Y,
+                gPlane->p1.Z);
+        G_debug(5, "           p2: %lf %lf %lf", gPlane->p2.X, gPlane->p2.Y,
+                gPlane->p2.Z);
         return 1;
     }
 
@@ -580,7 +603,8 @@ int NewPlane(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams
 
     gPlane->Rx = -atan(p3d.Z * gdInvCell);
 
-    G_debug(5, "NewPlane1:  Rx: %lf Ry: %lf Rz: %lf", gPlane->Rx, gPlane->Ry, gPlane->Rz);
+    G_debug(5, "NewPlane1:  Rx: %lf Ry: %lf Rz: %lf", gPlane->Rx, gPlane->Ry,
+            gPlane->Rz);
 
     /*
       Store transformation matrices
@@ -616,10 +640,14 @@ int NewPlane(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams
     // G_debug(5, "NewPlane1: fromPlane: [%lf,%lf,%lf,%lf,%lf,...]", \
     //         gPlane->fromPlane[0],gPlane->fromPlane[1],gPlane->fromPlane[2],gPlane->fromPlane[3],gPlane->fromPlane[4]);
 
-    G_debug(5, "NewPlane2: p0: %lf %lf %lf", gPlane->p0.X, gPlane->p0.Y, gPlane->p0.Z);
-    G_debug(5, "           p1: %lf %lf %lf", gPlane->p1.X, gPlane->p1.Y, gPlane->p1.Z);
-    G_debug(5, "           p2: %lf %lf %lf", gPlane->p2.X, gPlane->p2.Y, gPlane->p2.Z);
-    G_debug(5, "           Rx: %lf Ry: %lf Rz: %lf", gPlane->Rx, gPlane->Ry, gPlane->Rz);
+    G_debug(5, "NewPlane2: p0: %lf %lf %lf", gPlane->p0.X, gPlane->p0.Y,
+            gPlane->p0.Z);
+    G_debug(5, "           p1: %lf %lf %lf", gPlane->p1.X, gPlane->p1.Y,
+            gPlane->p1.Z);
+    G_debug(5, "           p2: %lf %lf %lf", gPlane->p2.X, gPlane->p2.Y,
+            gPlane->p2.Z);
+    G_debug(5, "           Rx: %lf Ry: %lf Rz: %lf", gPlane->Rx, gPlane->Ry,
+            gPlane->Rz);
 
 #ifdef TRACE
     if (rParams.EnabledLogFile)
@@ -639,9 +667,9 @@ int NewPlane(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams
     // if (rParams.gen_3d_vect)
     //     fprintf(
     //         gFileUst2,
-    //         "%.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf\n",
-    //         gGeometry.sw_x + gPlane.p0.X, gGeometry.sw_y + gPlane.p0.Y,
-    //         gPlane.p0.Z, gGeometry.sw_x + gPlane.p1.X,
+    //         "%.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %.2lf,
+    //         %.2lf\n", gGeometry.sw_x + gPlane.p0.X, gGeometry.sw_y +
+    //         gPlane.p0.Y, gPlane.p0.Z, gGeometry.sw_x + gPlane.p1.X,
     //         gGeometry.sw_y + gPlane.p1.Y, gPlane.p1.Z,
     //         gGeometry.sw_x + gPlane.p2.X, gGeometry.sw_y + gPlane.p2.Y,
     //         gPlane.p2.Z);
@@ -672,12 +700,13 @@ double P3dDist2(P3d *p1, P3d *p2)
     return sum;
 }
 
-void Filter(runtimeParams* rtParams, typeParams* tParams)
+void Filter(runtimeParams *rtParams, typeParams *tParams)
 {
     P3d *pos1, *pos2;
     typePath *p1, *p2;
 
-    for (p1 = rtParams->gpPathRoot, p2 = rtParams->gpPathRoot + 1; p2 < rtParams->gpPathCur; ++p2) {
+    for (p1 = rtParams->gpPathRoot, p2 = rtParams->gpPathRoot + 1;
+         p2 < rtParams->gpPathCur; ++p2) {
         pos1 = &p1->pos;
         pos2 = &p2->pos;
 
@@ -691,7 +720,8 @@ void Filter(runtimeParams* rtParams, typeParams* tParams)
         (rtParams->gpPathCur - 1)->deleted = 0;
 }
 
-void WritePath(runtimeParams* rtParams, typeParams* tParams, globalParams* gParams, StoneStatus status)
+void WritePath(runtimeParams *rtParams, typeParams *tParams,
+               globalParams *gParams, StoneStatus status)
 {
     Filter(rtParams, tParams);
 
@@ -711,7 +741,8 @@ void WritePath(runtimeParams* rtParams, typeParams* tParams, globalParams* gPara
         WriteInfoStatFile();
 }
 
-void MarkVelo(runtimeParams* rtParams, typeParams* tParams, globalParams* gParams)
+void MarkVelo(runtimeParams *rtParams, typeParams *tParams,
+              globalParams *gParams)
 {
     typePath *p;
     P3d *pp, *pv;
@@ -736,11 +767,12 @@ void MarkVelo(runtimeParams* rtParams, typeParams* tParams, globalParams* gParam
 
         if (v > VELO(rtParams, piv))
             setVELO(rtParams, piv, v);
-            // VELO(rtParams, piv) = v;
+        // VELO(rtParams, piv) = v;
     }
 }
 
-void MarkPath(runtimeParams* rtParams, typeParams* tParams, globalParams* gParams)
+void MarkPath(runtimeParams *rtParams, typeParams *tParams,
+              globalParams *gParams)
 {
     typePath *p;
     P3d *pp;
@@ -760,17 +792,18 @@ void MarkPath(runtimeParams* rtParams, typeParams* tParams, globalParams* gParam
         if (piv != rtParams->glLastPiv && pivIsValid(piv, gParams)) {
             if (COUNT(rtParams, piv) == -1)
                 setCOUNT(rtParams, piv, 1);
-                // COUNT(piv) = 1;
+            // COUNT(piv) = 1;
             else
                 setCOUNT(rtParams, piv, COUNT(rtParams, piv) + 1);
-                // ++(COUNT(piv));
+            // ++(COUNT(piv));
 
             rtParams->glLastPiv = piv;
         }
     }
 }
 
-void MarkQuota(runtimeParams* rtParams, typeParams* tParams, globalParams* gParams)
+void MarkQuota(runtimeParams *rtParams, typeParams *tParams,
+               globalParams *gParams)
 {
     typePath *p;
     P3d *pp;
@@ -905,8 +938,8 @@ double RoundDouble(double d)
     return (d * 10000. + 0.5) * 0.0001;
 }
 
-
-double GetRandAngle(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams, UniSave* uniData, int dir)
+double GetRandAngle(typeParams *rParams, runtimeParams *rtParams,
+                    globalParams *gParams, UniSave *uniData, int dir)
 {
     int cc;
     double alfa, st_alfa;
@@ -928,7 +961,8 @@ double GetRandAngle(typeParams* rParams, runtimeParams* rtParams, globalParams* 
             break;
         default:
             st_alfa = alfa - rtParams->gdStocAngleR +
-                      rtParams->gdStocAngle2R * (rand() * gParams->gdInvMaxRandPlusOne);
+                      rtParams->gdStocAngle2R *
+                          (rand() * gParams->gdInvMaxRandPlusOne);
             break;
         }
 
@@ -952,7 +986,8 @@ double GetRandAngle(typeParams* rParams, runtimeParams* rtParams, globalParams* 
     }
 }
 
-double GetRandVElas(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams, UniSave* uniData, long piv)
+double GetRandVElas(typeParams *rParams, runtimeParams *rtParams,
+                    globalParams *gParams, UniSave *uniData, long piv)
 {
     double v_el, st_v_el;
 
@@ -970,8 +1005,9 @@ double GetRandVElas(typeParams* rParams, runtimeParams* rtParams, globalParams* 
             st_v_el = Uniform(uniData, v_el, rtParams->gdStocVel2R);
             break;
         default:
-            st_v_el = v_el - rtParams->gdStocVelR +
-                      rtParams->gdStocVel2R * (rand() * gParams->gdInvMaxRandPlusOne);
+            st_v_el =
+                v_el - rtParams->gdStocVelR +
+                rtParams->gdStocVel2R * (rand() * gParams->gdInvMaxRandPlusOne);
             break;
         }
 
@@ -1000,7 +1036,8 @@ double GetRandVElas(typeParams* rParams, runtimeParams* rtParams, globalParams* 
     }
 }
 
-double GetRandHElas(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams, UniSave* uniData, long piv)
+double GetRandHElas(typeParams *rParams, runtimeParams *rtParams,
+                    globalParams *gParams, UniSave *uniData, long piv)
 {
     double h_el, st_h_el;
 
@@ -1018,8 +1055,9 @@ double GetRandHElas(typeParams* rParams, runtimeParams* rtParams, globalParams* 
             st_h_el = Uniform(uniData, h_el, rtParams->gdStocHel2R);
             break;
         default:
-            st_h_el = h_el - rtParams->gdStocHelR +
-                      rtParams->gdStocHel2R * (rand() * gParams->gdInvMaxRandPlusOne);
+            st_h_el =
+                h_el - rtParams->gdStocHelR +
+                rtParams->gdStocHel2R * (rand() * gParams->gdInvMaxRandPlusOne);
             break;
         }
 
@@ -1048,7 +1086,8 @@ double GetRandHElas(typeParams* rParams, runtimeParams* rtParams, globalParams* 
     }
 }
 
-double GetRandFrict(typeParams* rParams, runtimeParams* rtParams, globalParams* gParams, UniSave* uniData, long piv)
+double GetRandFrict(typeParams *rParams, runtimeParams *rtParams,
+                    globalParams *gParams, UniSave *uniData, long piv)
 {
     double frct, st_frct;
 
@@ -1067,7 +1106,8 @@ double GetRandFrict(typeParams* rParams, runtimeParams* rtParams, globalParams* 
             break;
         default:
             st_frct = frct - rtParams->gdStocFrictR +
-                      rtParams->gdStocFrict2R * (rand() * gParams->gdInvMaxRandPlusOne);
+                      rtParams->gdStocFrict2R *
+                          (rand() * gParams->gdInvMaxRandPlusOne);
             break;
         }
 
@@ -1096,7 +1136,7 @@ double GetRandFrict(typeParams* rParams, runtimeParams* rtParams, globalParams* 
     }
 }
 
-long Pivot(globalParams* gParams, double X, double Y)
+long Pivot(globalParams *gParams, double X, double Y)
 {
     long r, c;
 
@@ -1107,4 +1147,3 @@ long Pivot(globalParams* gParams, double X, double Y)
     long piv = r * gParams->giCols + c;
     return piv;
 }
-

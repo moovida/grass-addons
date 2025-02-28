@@ -29,18 +29,16 @@ static char rcsId[] = "$Id: random.c,v 1.1 2004/11/26 18:10:55 cstark Exp $";
 #define GCC_RNG TRUE
 /* #define CC_RNG TRUE */
 
-static long MarsagliaRandom(UniSave* uniData);
-static void MarsagliaSeed(UniSave* uniData, unsigned int);
+static long MarsagliaRandom(UniSave *uniData);
+static void MarsagliaSeed(UniSave *uniData, unsigned int);
 
-static long random_irpi(UniSave* uniData);
-static void srandom_irpi(UniSave* uniData, unsigned int);
+static long random_irpi(UniSave *uniData);
+static void srandom_irpi(UniSave *uniData, unsigned int);
 
-static long (*randomProc)(UniSave*) = MarsagliaRandom;
-static void (*seedProc)(UniSave*, unsigned int) = MarsagliaSeed;
+static long (*randomProc)(UniSave *) = MarsagliaRandom;
+static void (*seedProc)(UniSave *, unsigned int) = MarsagliaSeed;
 
-
-
-static long MarsagliaRandom(UniSave* uniData)
+static long MarsagliaRandom(UniSave *uniData)
 {
     float luni;
     luni = uniData->u[uniData->ui] - uniData->u[uniData->uj];
@@ -63,7 +61,7 @@ static long MarsagliaRandom(UniSave* uniData)
     return (long)((luni * (1 << 24)));
 }
 
-static void Rstart(UniSave* uniData, int i, int j, int k, int l)
+static void Rstart(UniSave *uniData, int i, int j, int k, int l)
 {
     int ii, jj, m;
     float s, t;
@@ -90,7 +88,7 @@ static void Rstart(UniSave* uniData, int i, int j, int k, int l)
     uniData->uj = 33; /*  of UNI -- i and j should be SAVEd in UNI()     */
 }
 
-static void MarsagliaSeed(UniSave* uniData, unsigned int ijkl)
+static void MarsagliaSeed(UniSave *uniData, unsigned int ijkl)
 {
     int i, j, k, l, ij, kl;
     if (ijkl > 900000000) {
@@ -123,32 +121,35 @@ static void MarsagliaSeed(UniSave* uniData, unsigned int ijkl)
     Rstart(uniData, i, j, k, l);
 }
 
-double Uniform(UniSave* uniData, double mean, double std_devn)
+double Uniform(UniSave *uniData, double mean, double std_devn)
 {
     /*
      * Return a uniform random variate of zero mean and unit variance
      *   - rember that variance of a uniform pdf is  (b-a)^2/12
      */
     std_devn *= sqrt(12.0);
-    return (mean - std_devn / 2) +
-           std_devn * (double)randomProc(uniData) / ((double)uniData->randMax + 1);
+    return (mean - std_devn / 2) + std_devn * (double)randomProc(uniData) /
+                                       ((double)uniData->randMax + 1);
 }
 
-double SimpleUniform(UniSave* uniData, double min, double max)
+double SimpleUniform(UniSave *uniData, double min, double max)
 {
-    return min + (max - min) * (double)randomProc(uniData) / ((double)uniData->randMax + 1);
+    return min + (max - min) * (double)randomProc(uniData) /
+                     ((double)uniData->randMax + 1);
 }
 
-double Gaussian(UniSave* uniData, double mean, double std_devn)
+double Gaussian(UniSave *uniData, double mean, double std_devn)
 {
     static int iset = 0;
     static double gset;
     double fac, r, v1, v2;
     if (iset == 0) {
         do {
-            v1 = 2.0 * ((double)(randomProc(uniData) & uniData->randMax) / (double)uniData->randMax) -
+            v1 = 2.0 * ((double)(randomProc(uniData) & uniData->randMax) /
+                        (double)uniData->randMax) -
                  1.0;
-            v2 = 2.0 * ((double)(randomProc(uniData) & uniData->randMax) / (double)uniData->randMax) -
+            v2 = 2.0 * ((double)(randomProc(uniData) & uniData->randMax) /
+                        (double)uniData->randMax) -
                  1.0;
             r = v1 * v1 + v2 * v2;
         } while (r >= 1.0);
@@ -168,9 +169,10 @@ double Gaussian(UniSave* uniData, double mean, double std_devn)
 #define M_PI (3.141592653589793115997963468544185161590576171875)
 #endif
 
-double Cauchy(UniSave* uniData, double mean, double half_width)
+double Cauchy(UniSave *uniData, double mean, double half_width)
 {
-    return (mean + half_width * tan(SimpleUniform(uniData, -M_PI / 2, M_PI / 2)));
+    return (mean +
+            half_width * tan(SimpleUniform(uniData, -M_PI / 2, M_PI / 2)));
 }
 
 /*
@@ -225,7 +227,8 @@ double Cauchy(UniSave* uniData, double mean, double half_width)
  *----------------------------------------------------------------------
  */
 
-double SymmStable(UniSave* uniData, double mean, double alpha, double half_width)
+double SymmStable(UniSave *uniData, double mean, double alpha,
+                  double half_width)
 {
     double phi, w;
     w = -log(SimpleUniform(uniData, DBL_MIN, 1));
@@ -242,7 +245,7 @@ double SymmStable(UniSave* uniData, double mean, double alpha, double half_width
                 sin(alpha * phi) / pow(cos(phi), (1.0 / alpha)));
 }
 
-double Holtsmark(UniSave* uniData, double mean, double half_width)
+double Holtsmark(UniSave *uniData, double mean, double half_width)
 {
     return SymmStable(uniData, mean, 1.5, half_width);
 }
@@ -332,7 +335,7 @@ double Holtsmark(UniSave* uniData, double mean, double half_width)
  *----------------------------------------------------------------------
  */
 
-double Stable(UniSave* uniData, double alpha, double beta, double r)
+double Stable(UniSave *uniData, double alpha, double beta, double r)
 {
     double phi, w, zeta, x, cosphi, bphi;
     /*
@@ -350,12 +353,14 @@ double Stable(UniSave* uniData, double alpha, double beta, double r)
     return r * (x + zeta);
 }
 
-double DoubleLevy(UniSave* uniData, double m, double r)
+double DoubleLevy(UniSave *uniData, double m, double r)
 {
-    return (SimpleUniform(uniData, -1, 1) >= 0 ? 1 : -1) * Stable(uniData, 0.5, -1, r) + m;
+    return (SimpleUniform(uniData, -1, 1) >= 0 ? 1 : -1) *
+               Stable(uniData, 0.5, -1, r) +
+           m;
 }
 
-double Pareto(UniSave* uniData, double c, double alpha, double m)
+double Pareto(UniSave *uniData, double c, double alpha, double m)
 {
     double x, y;
 
@@ -393,7 +398,7 @@ double Pareto(UniSave* uniData, double c, double alpha, double m)
     return y;
 }
 
-double StdExponential(UniSave* uniData)
+double StdExponential(UniSave *uniData)
 {
     static float q[8] = {0.6931472f, 0.9333737f, 0.9888778f, 0.9984959f,
                          0.9998293f, 0.9999833f, 0.9999986f, .9999999f};
@@ -436,25 +441,25 @@ double StdExponential(UniSave* uniData)
     return sexpo;
 }
 
-double Exponential(UniSave* uniData, double r)
+double Exponential(UniSave *uniData, double r)
 {
     return StdExponential(uniData) * r;
 }
 
-double DoubleExponential(UniSave* uniData, double m, double r)
+double DoubleExponential(UniSave *uniData, double m, double r)
 {
-    return (SimpleUniform(uniData, -1, 1) >= 0 ? 1 : -1) * StdExponential(uniData) * r /
-               sqrt(2) +
+    return (SimpleUniform(uniData, -1, 1) >= 0 ? 1 : -1) *
+               StdExponential(uniData) * r / sqrt(2) +
            m;
 }
 
-double HalfExponential(UniSave* uniData, double m, double r)
+double HalfExponential(UniSave *uniData, double m, double r)
 {
     m = 0;
     return StdExponential(uniData) * r / sqrt(2);
 }
 
-float SimpleGamma(UniSave* uniData, float a)
+float SimpleGamma(UniSave *uniData, float a)
 {
     float d, c, x, v, u;
     d = (float)(a - 1.0 / 3.0);
@@ -473,7 +478,7 @@ float SimpleGamma(UniSave* uniData, float a)
     }
 }
 
-double Gamma(UniSave* uniData, double mean, double stddevn)
+double Gamma(UniSave *uniData, double mean, double stddevn)
 {
     double alpha = pow(mean / stddevn, 2.0);
     double theta = (stddevn * stddevn) / mean;
@@ -488,13 +493,13 @@ double Gamma(UniSave* uniData, double mean, double stddevn)
     }
 }
 
-void Seed_RNG(UniSave* uniData, unsigned int seed)
+void Seed_RNG(UniSave *uniData, unsigned int seed)
 {
     seedProc(uniData, seed);
     return;
 }
 
-void Init_RNG(UniSave* uniData, int RNG, unsigned int seed)
+void Init_RNG(UniSave *uniData, int RNG, unsigned int seed)
 {
     if (RNG == 1) {
         /*
@@ -525,12 +530,12 @@ void Init_RNG(UniSave* uniData, int RNG, unsigned int seed)
     return;
 }
 
-static long random_irpi(UniSave* uniData)
+static long random_irpi(UniSave *uniData)
 {
     return (long)rand();
 }
 
-static void srandom_irpi(UniSave* uniData, unsigned int seed)
+static void srandom_irpi(UniSave *uniData, unsigned int seed)
 {
     srand(seed);
 }

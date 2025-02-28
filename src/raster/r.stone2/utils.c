@@ -1,74 +1,90 @@
 
-// WRITE functions to print with G_message the parameters of the following structures:
-
 #include <grass/gis.h>
 #include "stone2.h"
 #include "random2.h"
 
-
-long QUOTA(runtimeParams *params, long piv) {
+long QUOTA(runtimeParams *params, long piv)
+{
     return *(params->gplQuota + piv);
 }
 
-int DEC_X(globalParams *params, long piv) {
+int DEC_X(globalParams *params, long piv)
+{
     return (int)(piv % params->gGeometry->cols);
 }
 
-int DEC_Y(globalParams *params, long piv) {
+int DEC_Y(globalParams *params, long piv)
+{
     return (int)(piv / params->gGeometry->cols);
 }
 
-double POS_X(globalParams *params, long piv) {
-    return (double)(params->gdOffset + ((piv % params->giCols) - 1) * params->gdCell);
+double POS_X(globalParams *params, long piv)
+{
+    return (double)(params->gdOffset +
+                    ((piv % params->giCols) - 1) * params->gdCell);
 }
 
-double POS_Y(globalParams *params, long piv) {
-    return (double)(params->gdOffset + (params->giRows - 2 - (piv / params->giCols)) * params->gdCell);
+double POS_Y(globalParams *params, long piv)
+{
+    return (double)(params->gdOffset +
+                    (params->giRows - 2 - (piv / params->giCols)) *
+                        params->gdCell);
 }
 
-long START_STOP(runtimeParams *params, long piv) {
+long START_STOP(runtimeParams *params, long piv)
+{
     return *(params->gplStartStop + piv);
 }
 
-long START_VEL(runtimeParams *params, long piv) {
+long START_VEL(runtimeParams *params, long piv)
+{
     return *(params->gplStartVel + piv);
 }
 
-long VELO(runtimeParams *params, long piv) {
+long VELO(runtimeParams *params, long piv)
+{
     return *(params->gplVelo + piv);
 }
 
-void setVELO(runtimeParams *params, long piv, long value) {
+void setVELO(runtimeParams *params, long piv, long value)
+{
     *(params->gplVelo + piv) = value;
 }
 
-long COUNT(runtimeParams *params, long piv) {
+long COUNT(runtimeParams *params, long piv)
+{
     return *(params->gplCountStones + piv);
 }
 
 // and setter
-void setCOUNT(runtimeParams *params, long piv, long value) {
+void setCOUNT(runtimeParams *params, long piv, long value)
+{
     *(params->gplCountStones + piv) = value;
 }
 
-long MAX_QUOTA(runtimeParams *params, long piv) {
+long MAX_QUOTA(runtimeParams *params, long piv)
+{
     return *(params->gplMaxQuota + piv);
 }
 
 // and setter
-void setMAX_QUOTA(runtimeParams *params, long piv, long value) {
+void setMAX_QUOTA(runtimeParams *params, long piv, long value)
+{
     *(params->gplMaxQuota + piv) = value;
 }
 
-long V_ELAS(runtimeParams *params, long piv) {
+long V_ELAS(runtimeParams *params, long piv)
+{
     return *(params->gpcVElas + piv);
 }
 
-long H_ELAS(runtimeParams *params, long piv) {
+long H_ELAS(runtimeParams *params, long piv)
+{
     return *(params->gpcHElas + piv);
 }
 
-long FRICT(runtimeParams *params, long piv) {
+long FRICT(runtimeParams *params, long piv)
+{
     return *(params->gplFrict + piv);
 }
 
@@ -77,20 +93,23 @@ long FRICT(runtimeParams *params, long piv) {
  *
  * Returns 0 if it is NOT valid, else 1.
  */
-int pivIsValid(long piv, globalParams *gParams) {
+int pivIsValid(long piv, globalParams *gParams)
+{
     if (piv >= 0 && piv < gParams->glRowsxCols)
         return 1;
     return 0;
 }
 
-void print_double_array(const char *label, double *darray, int size) {
-    char buffer[1024];  // A buffer to hold the complete string
-    int offset = 0;     // Tracks the position in the buffer
+void print_double_array(const char *label, double *darray, int size)
+{
+    char buffer[1024]; // A buffer to hold the complete string
+    int offset = 0;    // Tracks the position in the buffer
 
     // Add the label to the buffer
     offset += snprintf(buffer + offset, sizeof(buffer) - offset, "%s: ", label);
     for (int i = 0; i < size; i++) {
-        offset += snprintf(buffer + offset, sizeof(buffer) - offset, "%f ", darray[i]);
+        offset += snprintf(buffer + offset, sizeof(buffer) - offset, "%f ",
+                           darray[i]);
 
         // Check for buffer overflow
         if (offset >= sizeof(buffer)) {
@@ -99,28 +118,24 @@ void print_double_array(const char *label, double *darray, int size) {
         }
     }
 
-    G_debug(4, "%s", buffer);  // Send the complete string to G_debug
+    G_debug(4, "%s", buffer); // Send the complete string to G_debug
 }
 
-
-void print_long_matrix(long* matrix, globalParams* gParams)
+void print_long_matrix(long *matrix, globalParams *gParams)
 {
     printf("** Long matrix:");
     long piv = 0;
     int cols = gParams->giCols;
-    for(piv = 0; piv < gParams->glRowsxCols; ++piv)
-	{
+    for (piv = 0; piv < gParams->glRowsxCols; ++piv) {
         if (piv % cols == 0)
             printf("\n");
         long value = *(matrix + piv);
-        if (value == -9999){
+        if (value == -9999) {
             value = 0;
         }
         printf("%ld ", value);
-
     }
 }
-
 
 void print_typeGeometry(typeGeometry *geometry)
 {
@@ -162,7 +177,8 @@ void print_typeParams(typeParams *params)
     if (params->OUT_POINT_2D_FILE[0] != '\0')
         G_message("\t-> OUT_POINT_2D_FILE: %s", params->OUT_POINT_2D_FILE);
     if (params->OUT_ATTRIBUTES_2D_FILE[0] != '\0')
-        G_message("\t-> OUT_ATTRIBUTES_2D_FILE: %s", params->OUT_ATTRIBUTES_2D_FILE);
+        G_message("\t-> OUT_ATTRIBUTES_2D_FILE: %s",
+                  params->OUT_ATTRIBUTES_2D_FILE);
     if (params->OUT_COUNTERS_FILE[0] != '\0')
         G_message("\t-> OUT_COUNTERS_FILE: %s", params->OUT_COUNTERS_FILE);
     if (params->OUT_MAX_VEL_FILE[0] != '\0')

@@ -8,20 +8,21 @@ extern int VREST_STOCH_FUNC;
 extern int HREST_STOCH_FUNC;
 extern int FRICT_STOCH_FUNC;
 extern int ANG_STOCH_FUNC;
-// coefficient to account for air drag and boulder shape. 
-// For a sphere the value range from 0.07 to 0.5.  
-// See also: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/shape-effects-on-drag/
+// coefficient to account for air drag and boulder shape.
+// For a sphere the value range from 0.07 to 0.5.
+// See also:
+// https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/shape-effects-on-drag/
 extern double DRAG_COEFFICIENT;
-// when SWITCH_VEL_TYPE = 0, a single starting velocity given by 
-// START_VEL is used. When SWITCH_VEL_TYPE = 1, velocity values will be read from the file
-// specified by ACCELERATION_MTRX_FILE and FROM_ACC_TO_VEL
+// when SWITCH_VEL_TYPE = 0, a single starting velocity given by
+// START_VEL is used. When SWITCH_VEL_TYPE = 1, velocity values will be read
+// from the file specified by ACCELERATION_MTRX_FILE and FROM_ACC_TO_VEL
 extern int SWITCH_VEL_TYPE;
 extern double START_VEL_DEFAULT;
 
 // Flying/rolling transition parameters.
 // Two parameters are used to decide if a boulder is flying or rolling.
 // DIST_FLY_ROLL is a distance, in meters.
-// If two successive impact points are at a distance shorter that 
+// If two successive impact points are at a distance shorter that
 // DIST_FLY_ROLL the boulder is assumed to be rolling.
 // Unit is meters.
 extern double DIST_FLY_ROLL;
@@ -40,13 +41,11 @@ extern double FLY_INT_TAB;
 extern double ROLL_INT_TAB;
 
 // Output tabulation, in meters.
-// The minimum distance between two successive points along a r.f. trajectory. 
+// The minimum distance between two successive points along a r.f. trajectory.
 extern double OUTPUT_TAB;
-
 
 // Path array size. Used to compute the rock fall trajectory.
 // Suggested value is 10000. Increase for very long or very complex trajectories
-// ! check if this produces the segmentation fault
 extern int PATH_ARRAY_SIZE;
 
 // Stochastic flag.
@@ -56,10 +55,10 @@ extern int PATH_ARRAY_SIZE;
 // Accepted values are 0 (zero) and 1 (one)
 //
 // STOCH_FLAG = 0, do not perform stochastic simulation (single run)
-// STOCH_FLAG = 1, perform stochastic simulation 
+// STOCH_FLAG = 1, perform stochastic simulation
 extern int STOCH_FLAG;
 
-// Selection of the random generation algorithm 
+// Selection of the random generation algorithm
 //
 // Accepted values are 0 (zero) and 1 (one)
 //

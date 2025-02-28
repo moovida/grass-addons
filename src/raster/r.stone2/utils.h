@@ -7,8 +7,8 @@ void print_typeParams(typeParams *params);
 void print_globalParams(globalParams *params);
 void print_runtimeParams(runtimeParams *params);
 void print_uniData(UniSave *uniData);
-void print_long_matrix(long* matrix, globalParams* gParams);
-void print_double_array(const char* label, double* darray, int size);
+void print_long_matrix(long *matrix, globalParams *gParams);
+void print_double_array(const char *label, double *darray, int size);
 int pivIsValid(long piv, globalParams *gParams);
 
 long QUOTA(runtimeParams *params, int piv);
