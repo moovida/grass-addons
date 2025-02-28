@@ -4,10 +4,8 @@ extern double OUTPUT_VELO_UM_FACTOR;
 extern int VECT_3D_FILES_FLAG;
 extern int FLAG_CREATE_INPUT_STAT;
 extern int VECT_2D_FILES_FLAG;
-extern int VREST_STOCH_FUNC;
 extern int HREST_STOCH_FUNC;
 extern int FRICT_STOCH_FUNC;
-extern int ANG_STOCH_FUNC;
 // coefficient to account for air drag and boulder shape.
 // For a sphere the value range from 0.07 to 0.5.
 // See also:
@@ -57,11 +55,3 @@ extern int PATH_ARRAY_SIZE;
 // STOCH_FLAG = 0, do not perform stochastic simulation (single run)
 // STOCH_FLAG = 1, perform stochastic simulation
 extern int STOCH_FLAG;
-
-// Selection of the random generation algorithm
-//
-// Accepted values are 0 (zero) and 1 (one)
-//
-// RANDOM_GENERATOR = 0, Standard library
-// RANDOM_GENERATOR = 1, Marsaglia library
-extern int RANDOM_GENERATOR;

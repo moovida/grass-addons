@@ -13,7 +13,7 @@ typedef struct {
     unsigned long randMax;
 } UniSave;
 
-void Init_RNG(UniSave *uniData, int RNG, unsigned int seed);
+void Init_RNG(UniSave *uniData, unsigned int seed);
 
 double Uniform(UniSave *uniData, double mean, double std_devn);
 

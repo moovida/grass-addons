@@ -51,7 +51,8 @@ int main(int argc, char *argv[])
 
     struct {
         struct Option *angStochRangeOpt, *vrestStochRangeOpt,
-            *hrestStochRangeOpt, *frictStochRangeOpt;
+            *hrestStochRangeOpt, *frictStochRangeOpt, *stocasticFunctionAngOpt,
+            *stocasticFunctionVrestOpt;
         struct Option *stopvelOpt;
     } params;
 
@@ -119,6 +120,26 @@ int main(int argc, char *argv[])
           "Example Friction for bedrock is low, beta = 16.7, tan(beta) = 0.30");
     inputRaster.frictionOpt->required = YES;
     inputRaster.frictionOpt->guisection = _("Input maps");
+
+    params.stocasticFunctionAngOpt = G_define_option();
+    params.stocasticFunctionAngOpt->key = "stoch_funct_ang";
+    params.stocasticFunctionAngOpt->type = TYPE_INTEGER;
+    params.stocasticFunctionAngOpt->required = NO;
+    params.stocasticFunctionAngOpt->description =
+        _("The stocastic simulation function to use for the range of starting "
+          "angles (0 = Gaussian, 1 = Cauchy, 2 = Uniform)");
+    params.stocasticFunctionAngOpt->guisection = _("Stochastic functions");
+    params.stocasticFunctionAngOpt->answer = "0";
+
+    params.stocasticFunctionVrestOpt = G_define_option();
+    params.stocasticFunctionVrestOpt->key = "stoch_funct_vrest";
+    params.stocasticFunctionVrestOpt->type = TYPE_INTEGER;
+    params.stocasticFunctionVrestOpt->required = NO;
+    params.stocasticFunctionVrestOpt->description =
+        _("The stocastic simulation function to use for the vertical energy "
+          "loss (0 = Gaussian, 1 = Cauchy, 2 = Uniform)");
+    params.stocasticFunctionVrestOpt->guisection = _("Stochastic functions");
+    params.stocasticFunctionVrestOpt->answer = "0";
 
     params.angStochRangeOpt = G_define_option();
     params.angStochRangeOpt->key = "ang_stoch_range";
@@ -221,6 +242,8 @@ int main(int argc, char *argv[])
     int vrest_stoch_range = atoi(params.vrestStochRangeOpt->answer);
     int hrest_stoch_range = atoi(params.hrestStochRangeOpt->answer);
     int frict_stoch_range = atoi(params.frictStochRangeOpt->answer);
+    int stocasticFunctionAng = atoi(params.stocasticFunctionAngOpt->answer);
+    int stocasticFunctionVrest = atoi(params.stocasticFunctionVrestOpt->answer);
     double stop_vel = atof(params.stopvelOpt->answer);
 
     typeParams stoneRunParams = {0};
@@ -268,14 +291,13 @@ int main(int argc, char *argv[])
     stoneRunParams.v0 = START_VEL_DEFAULT;
 
     stoneRunParams.stoc_flag = STOCH_FLAG;
-    stoneRunParams.mANG_STOCH_FUNC = ANG_STOCH_FUNC;
-    stoneRunParams.mVREST_STOCH_FUNC = VREST_STOCH_FUNC;
+    stoneRunParams.mANG_STOCH_FUNC = stocasticFunctionAng;
+    stoneRunParams.mVREST_STOCH_FUNC = stocasticFunctionVrest;
 
     // flags to disable future parameters stuff unused at the moment
     stoneRunParams.gen_3d_vect = VECT_3D_FILES_FLAG;
     stoneRunParams.gFlagInfoStat = 0.; // FLAG_CREATE_INPUT_STAT;
     stoneRunParams.giRockType = BOULDER_SHAPE;
-    stoneRunParams.randomGenerator = RANDOM_GENERATOR;
 
     globalParams stoneGlobalParams = {0};
     stoneGlobalParams.gGeometry = malloc(sizeof(typeGeometry));

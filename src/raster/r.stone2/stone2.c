@@ -100,8 +100,7 @@ static void InitRangeRandValues(typeParams *runParams,
         runTimeParams->gdStocFrict2R = runTimeParams->gdStocFrictR * 2.;
     }
 
-    Init_RNG(uniData, runParams->randomGenerator,
-             (unsigned int)runParams->stoc_flag);
+    Init_RNG(uniData, (unsigned int)runParams->stoc_flag);
 }
 
 static void ReadInputRasters(typeParams *rParams, globalParams *gParams,
@@ -998,12 +997,12 @@ double GetRandVElas(typeParams *rParams, runtimeParams *rtParams,
         case 0: /*gauss*/
             st_v_el = Gaussian(uniData, v_el, rtParams->gdStocVel2R);
             break;
-        case 1: /*cauchy*/
-            st_v_el = Cauchy(uniData, v_el, rtParams->gdStocVelR);
-            break;
-        case 2: /*uniform*/
-            st_v_el = Uniform(uniData, v_el, rtParams->gdStocVel2R);
-            break;
+        // TODO case 1: /*cauchy*/
+        //     st_v_el = Cauchy(uniData, v_el, rtParams->gdStocVelR);
+        //     break;
+        // case 2: /*uniform*/
+        //     st_v_el = Uniform(uniData, v_el, rtParams->gdStocVel2R);
+        //     break;
         default:
             st_v_el =
                 v_el - rtParams->gdStocVelR +
@@ -1048,12 +1047,12 @@ double GetRandHElas(typeParams *rParams, runtimeParams *rtParams,
         case 0: /*gauss*/
             st_h_el = Gaussian(uniData, h_el, rtParams->gdStocHel2R);
             break;
-        case 1: /*cauchy*/
-            st_h_el = Cauchy(uniData, h_el, rtParams->gdStocHelR);
-            break;
-        case 2: /*uniform*/
-            st_h_el = Uniform(uniData, h_el, rtParams->gdStocHel2R);
-            break;
+        // TODO case 1: /*cauchy*/
+        //     st_h_el = Cauchy(uniData, h_el, rtParams->gdStocHelR);
+        //     break;
+        // case 2: /*uniform*/
+        //     st_h_el = Uniform(uniData, h_el, rtParams->gdStocHel2R);
+        //     break;
         default:
             st_h_el =
                 h_el - rtParams->gdStocHelR +
@@ -1098,12 +1097,12 @@ double GetRandFrict(typeParams *rParams, runtimeParams *rtParams,
         case 0: /*gauss*/
             st_frct = Gaussian(uniData, frct, rtParams->gdStocFrict2R);
             break;
-        case 1: /*cauchy*/
-            st_frct = Cauchy(uniData, frct, rtParams->gdStocFrictR);
-            break;
-        case 2: /*uniform*/
-            st_frct = Uniform(uniData, frct, rtParams->gdStocFrict2R);
-            break;
+        // TODO case 1: /*cauchy*/
+        //     st_frct = Cauchy(uniData, frct, rtParams->gdStocFrictR);
+        //     break;
+        // case 2: /*uniform*/
+        //     st_frct = Uniform(uniData, frct, rtParams->gdStocFrict2R);
+        //     break;
         default:
             st_frct = frct - rtParams->gdStocFrictR +
                       rtParams->gdStocFrict2R *
