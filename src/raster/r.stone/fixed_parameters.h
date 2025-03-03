@@ -15,7 +15,6 @@ extern double DRAG_COEFFICIENT;
 // START_VEL is used. When SWITCH_VEL_TYPE = 1, velocity values will be read
 // from the file specified by ACCELERATION_MTRX_FILE and FROM_ACC_TO_VEL
 extern int SWITCH_VEL_TYPE;
-extern double START_VEL_DEFAULT;
 
 // Flying/rolling transition parameters.
 // Two parameters are used to decide if a boulder is flying or rolling.

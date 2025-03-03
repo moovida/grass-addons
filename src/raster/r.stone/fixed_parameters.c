@@ -7,7 +7,6 @@ int HREST_STOCH_FUNC = 0;
 int FRICT_STOCH_FUNC = 0;
 double DRAG_COEFFICIENT = 0.5;
 int SWITCH_VEL_TYPE = 0;
-double START_VEL_DEFAULT = 1.0;
 double DIST_FLY_ROLL = 3.0;
 double VEL_FLY_ROLL = 5.0;
 double FLY_INT_TAB = 5.0;

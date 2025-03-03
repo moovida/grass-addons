@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         struct Option *angStochRangeOpt, *vrestStochRangeOpt,
             *hrestStochRangeOpt, *frictStochRangeOpt, *stocasticFunctionAngOpt,
             *stocasticFunctionVrestOpt;
-        struct Option *stopvelOpt;
+        struct Option *stopvelOpt, *startvelOpt;
     } params;
 
     struct GModule *module;
@@ -122,6 +122,16 @@ int main(int argc, char *argv[])
     inputRaster.frictionOpt->required = YES;
     inputRaster.frictionOpt->guisection = _("Input maps");
 
+    params.stocasticFunctionVrestOpt = G_define_option();
+    params.stocasticFunctionVrestOpt->key = "stoch_funct";
+    params.stocasticFunctionVrestOpt->type = TYPE_INTEGER;
+    params.stocasticFunctionVrestOpt->required = NO;
+    params.stocasticFunctionVrestOpt->description =
+        _("The stocastic simulation function to use for VElas, HElas, "
+          "Frict (0 = Gaussian, 1 = Cauchy, 2 = Uniform)");
+    params.stocasticFunctionVrestOpt->guisection = _("Stochastic functions");
+    params.stocasticFunctionVrestOpt->answer = "0";
+
     params.stocasticFunctionAngOpt = G_define_option();
     params.stocasticFunctionAngOpt->key = "stoch_funct_ang";
     params.stocasticFunctionAngOpt->type = TYPE_INTEGER;
@@ -131,16 +141,6 @@ int main(int argc, char *argv[])
           "angles (0 = Gaussian, 1 = Cauchy, 2 = Uniform)");
     params.stocasticFunctionAngOpt->guisection = _("Stochastic functions");
     params.stocasticFunctionAngOpt->answer = "0";
-
-    params.stocasticFunctionVrestOpt = G_define_option();
-    params.stocasticFunctionVrestOpt->key = "stoch_funct_vrest";
-    params.stocasticFunctionVrestOpt->type = TYPE_INTEGER;
-    params.stocasticFunctionVrestOpt->required = NO;
-    params.stocasticFunctionVrestOpt->description =
-        _("The stocastic simulation function to use for the vertical energy "
-          "loss (0 = Gaussian, 1 = Cauchy, 2 = Uniform)");
-    params.stocasticFunctionVrestOpt->guisection = _("Stochastic functions");
-    params.stocasticFunctionVrestOpt->answer = "0";
 
     params.angStochRangeOpt = G_define_option();
     params.angStochRangeOpt->key = "ang_stoch_range";
@@ -178,6 +178,15 @@ int main(int argc, char *argv[])
     params.frictStochRangeOpt->guisection = _("Stochastic functions");
     params.frictStochRangeOpt->answer = "10";
 
+    params.startvelOpt = G_define_option();
+    params.startvelOpt->key = "start_vel";
+    params.startvelOpt->type = TYPE_DOUBLE;
+    params.startvelOpt->required = YES;
+    params.startvelOpt->label = _("Start velocity");
+    params.startvelOpt->description = _("The start velocity of a rock [m/s].");
+    params.startvelOpt->guisection = _("Parameters");
+    params.startvelOpt->answer = "1.0";
+
     params.stopvelOpt = G_define_option();
     params.stopvelOpt->key = "stop_vel";
     params.stopvelOpt->type = TYPE_DOUBLE;
@@ -186,7 +195,7 @@ int main(int argc, char *argv[])
     params.stopvelOpt->description =
         _("Parameter used to define the minimum velocity for a rock fall."
           "A velocity lower than the one specified here causes the boulder to "
-          "stop.");
+          "stop. [m/s]");
     params.stopvelOpt->guisection = _("Parameters");
     params.stopvelOpt->answer = "3.0";
 
@@ -246,6 +255,7 @@ int main(int argc, char *argv[])
     int stocasticFunctionAng = atoi(params.stocasticFunctionAngOpt->answer);
     int stocasticFunctionVrest = atoi(params.stocasticFunctionVrestOpt->answer);
     double stop_vel = atof(params.stopvelOpt->answer);
+    double start_vel = atof(params.startvelOpt->answer);
 
     typeParams stoneRunParams = {0};
     strncpy(stoneRunParams.elev_f, inputRaster.demOpt->answer,
@@ -289,7 +299,7 @@ int main(int argc, char *argv[])
     stoneRunParams.gdTab2 = stoneRunParams.tab * stoneRunParams.tab;
 
     stoneRunParams.SwitchVelType = SWITCH_VEL_TYPE;
-    stoneRunParams.v0 = START_VEL_DEFAULT;
+    stoneRunParams.v0 = start_vel;
 
     stoneRunParams.stoc_flag = STOCH_FLAG;
     stoneRunParams.mANG_STOCH_FUNC = stocasticFunctionAng;
