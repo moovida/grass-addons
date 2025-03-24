@@ -77,7 +77,7 @@ class TestRSimSediment(TestCase):
             friction_raster=self.friction,
             nrest_raster=self.nrest,
             trest_raster=self.trest,
-            count_raster=self.count,
+            counters_raster=self.count,
             ang_stoch_range=10,
             vrest_stoch_range=10,
             hrest_stoch_range=10,
