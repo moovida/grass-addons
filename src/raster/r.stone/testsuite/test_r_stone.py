@@ -20,31 +20,37 @@ class TestRSimSediment(TestCase):
         cls.runModule("g.region", n=5151960, s=5151500, e=807140, w=806500, res=10)
         cls.runModule(
             "r.unpack",
+            flags="o",
             input="data/dem.pack",
             output=cls.dem,
         )
         cls.runModule(
             "r.unpack",
+            flags="o",
             input="data/sources.pack",
             output=cls.sources,
         )
         cls.runModule(
             "r.unpack",
+            flags="o",
             input="data/friction.pack",
             output=cls.friction,
         )
         cls.runModule(
             "r.unpack",
+            flags="o",
             input="data/nrest.pack",
             output=cls.nrest,
         )
         cls.runModule(
             "r.unpack",
+            flags="o",
             input="data/trest.pack",
             output=cls.trest,
         )
         cls.runModule(
             "r.unpack",
+            flags="o",
             input="data/expectedcount.pack",
             output=cls.expectedcount,
         )
